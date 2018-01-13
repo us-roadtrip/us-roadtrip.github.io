@@ -24,7 +24,7 @@ var nodeLinkG = svg.select('g')
 
 timeSpentScale = d3.scaleLinear()
     .domain([0.1,72])
-    .range([10, 100]);
+    .range([10, 50]);
 
 //location data
 d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vTEgHmkVfYGNyB8cu1ncF3eZmawhthRlro1T7zxSGybQ5OYwWTkZvkO2yEYQcPHW1MoFjIRzUpL2LOA/pub?output=csv',
@@ -35,12 +35,10 @@ d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vTEgHmkVfYGNyB8cu1ncF3eZ
             lng: +d['Long'],
             time_length: +d['Time Length'],
             name: d['Name'],
-            desc1: d['Desc1'],
-            desc2: d['Desc2'],
-            desc3: d['Desc3'],
-            pitstop: d['Pit Stop'],
+            desc: d['Desc'],
+            pitstop: +d['Pit Stop'],
             day: +d['Day'],
-            album: +d['Imgur Album']
+            album: d['Imgur Album']
         };
     }, function(error, dataset) {
         if (error) {
@@ -51,8 +49,6 @@ d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vTEgHmkVfYGNyB8cu1ncF3eZ
 
         for (var i = 0; i < data.length; i++) {
             var d = data[i];
-
-            console.log((timeSpentScale(d.time_length)));
             var size = parseInt(timeSpentScale(d.time_length));
 
             var myIcon = L.icon({
@@ -64,8 +60,20 @@ d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vTEgHmkVfYGNyB8cu1ncF3eZ
 
             L.marker([d.lat, d.lng], {icon: myIcon}).addTo(myMap)
                 .bindPopup(d.name)
-                .on('click', function() {onMarkerClick(d)})
-                .on('popupclose', function() {onMarkerClose(d)});
+                .on('click', function() {
+                    var latlng = this.getLatLng();
+                    d_case = data.filter(function(d) { return d.lat == latlng.lat && d.lng == latlng.lng })[0];
+                    onMarkerClick(d_case);
+                })
+                .on('popupclose', function() {
+                    d3.select("#map_div").attr('class', 'col-12');
+
+                    d3.select('#blog_post').remove();
+                    d3.select('#carousel').remove();
+                    d3.select("#blog_div").classed('col-6', function() {return false;});
+                    
+                    myMap.setView(this.getLatLng(), 4);
+                });
         }
 
         //myMap.on('zoomend', updateLayers);
@@ -73,7 +81,8 @@ d3.csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vTEgHmkVfYGNyB8cu1ncF3eZ
     });
 
 function onMarkerClick(d) {
-    if (d.pitstop != 1) {
+    //d = data.
+    if (d.pitstop != 1 && d.album != "") {
         d3.select("#map_div").attr('class', 'col-6');
 
         var blog_div = d3.select("#blog_div").attr('class', 'col-6').style('padding-right','50px')
@@ -82,16 +91,15 @@ function onMarkerClick(d) {
         .attr('id', 'blog_post')
         .html('<h3 align=\"center\">'+ d.name +'</h3>'
             + '<div align=\"center\"><p>' + 'Jan ' + (d.day + 14) + ', 2018'
-            + '<br>Time Spent: ' + d.time_length + ' hours </p></div>');
+            + '<br>Time Spent: ' + d.time_length + ' hours </p></div>'
+            + '<div align=\"center\"><p>' + d.desc + '</p></div>');
 
         myMap.setView([d.lat,d.lng], 4);
-
-        
 
         var html = "<div id=\"photoCarousel\" class=\"carousel slide\" data-ride=\"carousel\">"
             + "<div class=\"carousel-inner\" role=\"listbox\">"
 
-        var images = getImages("iT0a8");
+        var images = getImages(d.album);
 
         for (var i=0; i < images.length; i++) {
 
@@ -101,14 +109,10 @@ function onMarkerClick(d) {
                 html += "<div class=\"carousel-item\" align = \"center\">";
             }
 
-            html += ("<img  class=\"d-block img-fluid\" src=\"" + images[i].link + "\" alt=\"First slide\""
+            html += ("<img  class=\"d-block img-fluid\" src=\"" + images[i].link + "\""
             + "style=\"height:200px;\">"
             + "</div>");
         }
-
-        
-            
-
 
         html += ("</div>"
             + "<a class=\"carousel-control-prev\" href=\"#photoCarousel\" role=\"button\" data-slide=\"prev\">"
@@ -122,10 +126,12 @@ function onMarkerClick(d) {
         
 
         carousel = blog_div.append('foreignObject')
+        .attr('id', 'carousel')
         .html(html);
-
     }
 }
+
+
 
 function getImages(albumID) {
     var xmlHttp = new XMLHttpRequest();
@@ -136,14 +142,7 @@ function getImages(albumID) {
     return result.data.images;
 }
 
-function onMarkerClose(d) {
-    d3.select("#map_div").attr('class', 'col-12');
 
-    d3.select('#blog_post').remove();
-    d3.select("#blog_div").classed('col-6', function() {return false;});
-    
-    myMap.setView([d.lat,d.lng], 4);
-}
 
 var colors = ['#4C6085', '#50C5B7', '#736CED', '#9CEC5B', '#39A0ED', '#9D96B8','#DD6E42','#0D1F2D'];
 var activities = ['Sleeping', 'Eating', 'Driving', 'Walking', 'Being Social', 'Downtime', 'Shopping', 'Nightlife'];
