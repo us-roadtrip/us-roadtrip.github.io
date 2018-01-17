@@ -92,7 +92,7 @@ function onMarkerClick(d) {
             + '<br>Time Spent: ' + d.time_length + ' hours </p></div>'
             + '<div align=\"center\"><p>' + d.desc + '</p></div>');
 
-        myMap.setView([d.lat,d.lng], 4);
+        myMap.setView([d.lat,d.lng + 4], 4);
 
         var html = "<div id=\"photoCarousel\" class=\"carousel slide\" data-ride=\"carousel\">"
             + "<div class=\"carousel-inner\" role=\"listbox\">"
