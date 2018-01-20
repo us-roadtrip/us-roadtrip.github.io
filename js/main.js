@@ -107,9 +107,8 @@ function onMarkerClick(d) {
                 html += "<div class=\"carousel-item\" align = \"center\" style=\"height: 300px;\">";
             }
 
-            html += ("<img class=\"d-block img-fluid\" src=\"" + images[i].link + "\""
-            + "style=\"width: 100%;\" vertical-align=\"middle\">"
-            + "</div>");
+            html += ("<div class=\"wraptocenter\"><span></span><img class=\"d-block img-fluid\" src=\"" + images[i].link + "\">"
+            + "</div></div>");
         }
 
         html += ("</div>"
