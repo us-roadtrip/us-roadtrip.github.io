@@ -5,3 +5,9 @@
 p{
     max-width: 700px;
 }
+
+.carousel-item img {
+    position: absolute;   
+    top: 50%;
+    transform: translateY(-50%);
+}
