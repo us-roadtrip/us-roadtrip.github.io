@@ -22,7 +22,7 @@ var svg = d3.select('#main').select('svg');
 var nodeLinkG = svg.select('g')
     .attr('class', 'leaflet-zoom-hide');
 
-timeSpentScale = d3.scaleLinear()
+timeSpentScale = d3.scaleLog()
     .domain([0.1,72])
     .range([10, 50]);
 
