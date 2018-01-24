@@ -23,7 +23,7 @@ var nodeLinkG = svg.select('g')
     .attr('class', 'leaflet-zoom-hide');
 
 timeSpentScale = d3.scaleLinear()
-    .domain([0.1,72])
+    .domain([0.1,86])
     .range([10, 50]);
 
 //location data
